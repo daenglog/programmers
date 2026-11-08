@@ -3,24 +3,24 @@ class Solution {
     public int solution(int[] scoville, int K) {
         int answer = 0;
         
-        PriorityQueue<Integer> pQ = new PriorityQueue<>();
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
         
-        for(int s : scoville) pQ.add(s);
+        for(int s : scoville) {
+            pq.offer(s);
+        }
         
-        while(!pQ.isEmpty() && pQ.size() > 1) {
-            int first = pQ.poll();
+        while(pq.size() > 1) {
+            if (pq.peek() >= K) break;
             
-            if (first < K) {
-                int second = pQ.poll();
-                pQ.add(first + second * 2);
-                answer++;
-            } else {
-                pQ.add(first);
-                break;
-            }
-        } 
+            int first = pq.poll();
+            int second = pq.poll();
+            
+            pq.offer(first + second*2);
+            answer++;
+        }
         
-        if (pQ.peek() < K) answer = -1;
+        if (pq.peek() < K)
+            return -1;
         
         return answer;
     }
