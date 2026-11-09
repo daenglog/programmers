@@ -4,26 +4,25 @@ class Solution {
         int answer = 0;
         
         Deque<Integer> deque = new ArrayDeque<>();
-        PriorityQueue<Integer> pQ = new PriorityQueue<>(Collections.reverseOrder());
+        PriorityQueue<Integer> pq = new PriorityQueue<>(Collections.reverseOrder());
         
         for(int i = 0 ; i < priorities.length ; i++) {
-            deque.addLast(i);
-            pQ.add(priorities[i]);
+            deque.offerLast(i);
+            pq.offer(priorities[i]);
         }
         
-        while(!deque.isEmpty()) {
-            int poll = pQ.poll();
+        while(!pq.isEmpty()) {
+            int max = pq.poll();
             int idx = deque.pollFirst();
             
-            if(priorities[idx] == poll) {
+            if(priorities[idx] == max) {
                 answer++;
-                if(idx == location) {
+                if(idx == location)
                     break;
-                }
             } else {
-                deque.addLast(idx);
-                pQ.add(poll);
-            }
+                pq.offer(max);
+                deque.offerLast(idx);
+            }    
         }
         
         return answer;
