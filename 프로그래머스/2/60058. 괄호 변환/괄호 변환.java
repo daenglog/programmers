@@ -1,10 +1,6 @@
 import java.util.*;
 class Solution {
     public String solution(String p) {
-        String answer = "";
-        
-        //sol2(p);
-        
         return sol2(p);
     }
     
@@ -33,7 +29,9 @@ class Solution {
             String t = "(";
             t += sol2(p.substring(i, p.length()));
             t += ")";
+            
             res = res.substring(1, res.length()-1);
+            
             for(int idx = 0 ; idx < res.length() ; idx++) {
                 if(res.charAt(idx) == '(')
                     t += ")";
