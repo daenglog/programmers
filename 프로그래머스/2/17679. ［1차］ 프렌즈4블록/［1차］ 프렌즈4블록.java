@@ -1,85 +1,73 @@
 import java.util.*;
 class Solution {
-    boolean[][] visited;
-    char[][] graph;
+    char[][] cBoard;
     public int solution(int m, int n, String[] board) {
         int answer = 0;
-        
-        graph = new char[m][n];
+        cBoard = new char[m][n];
         
         for(int i = 0 ; i < m ; i++) {
-            for(int j = 0 ; j < n ; j++) {
-                graph[i][j] = board[i].charAt(j);
-            }
+            cBoard[i] = board[i].toCharArray();
         }
         
         while(true) {
-            visited = new boolean[m][n];
-        
-            boolean check = checkGraph(m, n);
-        
-            if(check) {
-                answer += changeGraph(m, n);
-            } else {
-                break;
-            }
+            int res = checkBoard(m, n);
+            
+            if(res == 0) break;
+            answer+=res;
+            changeBoard(m, n);
         }
-        
         
         return answer;
     }
     
-    boolean checkGraph(int m, int n) {
-        boolean check = false;
-        
-        int[] dr = {0, 1, 1};
-        int[] dc = {1, 0, 1};
+    int checkBoard(int m, int n) {
+        boolean[][] check = new boolean[m][n];
         
         for(int i = 0 ; i < m-1 ; i++) {
-            for (int j = 0 ; j < n-1 ; j++) {
-                char now = graph[i][j];
-                if(now == '.') continue;
-                boolean flag = true;
-                for(int idx = 0 ; idx < 3 ; idx++) {
-                    char next = graph[i+dr[idx]][j+dc[idx]];
-                    if(now != next) {
-                        flag = false;
-                        break;
-                    }
-                }
+            for(int j = 0 ; j < n-1 ; j++) {
+                if(cBoard[i][j] == '.') continue;
+                if(cBoard[i][j] != cBoard[i][j+1]) continue;
+                if(cBoard[i][j] != cBoard[i+1][j]) continue;
+                if(cBoard[i][j] != cBoard[i+1][j+1]) continue;
                 
-                if(flag) {
-                    visited[i][j] = true;
-                    for(int idx = 0 ; idx < 3 ; idx++) {
-                        visited[i+dr[idx]][j+dc[idx]] = true;
-                    }
-                    check = true;
+                check[i][j] = true;
+                check[i][j+1] = true;
+                check[i+1][j] = true;
+                check[i+1][j+1] = true;
+            }
+        }
+        
+        int count = 0;
+        for(int i = 0 ; i < m ; i++) {
+            for(int j = 0 ; j < n ; j++) {
+                if(check[i][j]) {
+                    count++;
+                    cBoard[i][j] = '.';
                 }
             }
         }
-        return check;
+        return count;
     }
-    int changeGraph(int m, int n) {
-        int result = 0;
-        Deque<Character> queue = new ArrayDeque<>();
+    
+    void changeBoard(int m, int n) {
+        Deque<Character> stack = new ArrayDeque<>();
         
         for(int j = 0 ; j < n ; j++) {
-            for(int i = m-1 ; i >= 0 ; i--) {
-                if(!visited[i][j]) {
-                    queue.addLast(graph[i][j]);
-                } else {
-                    result++;
-                }
+            stack.clear();
+            for(int i = 0 ; i < m ; i++) {
+                if(cBoard[i][j] == '.') continue;
+                stack.offerLast(cBoard[i][j]);
             }
+            
+            if(stack.isEmpty()) continue;
+            
             for(int i = m-1 ; i >= 0 ; i--) {
-                if(queue.isEmpty()) {
-                    graph[i][j] = '.';
-                } else {
-                    graph[i][j] = queue.pollFirst();
-                }
+                if(stack.isEmpty())
+                    cBoard[i][j] = '.';
+                else
+                    cBoard[i][j] = stack.pollLast();
             }
+            
         }
-        
-        return result;
     }
 }
