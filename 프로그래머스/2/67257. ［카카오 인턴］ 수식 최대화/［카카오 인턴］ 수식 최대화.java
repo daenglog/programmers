@@ -1,78 +1,62 @@
 import java.util.*;
 class Solution {
+    Deque<String> queue = new ArrayDeque<>();
     public long solution(String expression) {
         long answer = 0;
         
-        answer = Math.max(answer, Math.abs(calculate(expression, "+-*")));
-        answer = Math.max(answer, Math.abs(calculate(expression, "+*-")));
-        answer = Math.max(answer, Math.abs(calculate(expression, "-*+")));
-        answer = Math.max(answer, Math.abs(calculate(expression, "-+*")));
-        answer = Math.max(answer, Math.abs(calculate(expression, "*+-")));
-        answer = Math.max(answer, Math.abs(calculate(expression, "*-+")));
+        String tmp = "";
+        for(char c : expression.toCharArray()) {
+            if (c == '-' || c == '*' || c == '+') {
+                queue.offerLast(tmp);
+                tmp = "";
+                queue.offerLast(c + "");
+            } else {
+                tmp += c;
+            }
+        }
+        queue.offerLast(tmp);
+        
+        answer = Math.max(answer, func("*+-"));
+        answer = Math.max(answer, func("*-+"));
+        answer = Math.max(answer, func("+-*"));
+        answer = Math.max(answer, func("+*-"));
+        answer = Math.max(answer, func("-*+"));
+        answer = Math.max(answer, func("-+*"));
         
         return answer;
     }
     
-    
-    Deque<String> makeExp(String expression) {
-        Deque<String> exp = new ArrayDeque<>();
-    
-        String tmp = "";
-        for(char c : expression.toCharArray()) {
-            if (c == '+' || c == '-' || c == '*') {
-                exp.offerLast(tmp);
-                tmp = "";
-                exp.offerLast(c + "");
-            } else {
-                tmp += c+"";
-            }
-        }
-       
-        exp.add(tmp);
-    
-        return exp;
-    }
-    
-    long calculate(String expression, String calc) {        
-        Deque<String> origin = makeExp(expression);
-        
-        for(String c : calc.split("")) {
-            origin = func(c, origin);
-        }
-        
-        return Long.parseLong(origin.pollLast());
-    }
-    
-    Deque<String> func(String target, Deque<String> exp) {
+    Deque<String> calc(Deque<String> tmp, char target) {
         Deque<String> stack = new ArrayDeque<>();
-        stack.offerLast(exp.pollFirst());
         
-        while (!exp.isEmpty()) {
-            String now = exp.pollFirst();
+        stack.offerLast(tmp.pollFirst());
+        while (!tmp.isEmpty()) {
+            String now = tmp.pollFirst();
             
-            try {
-                long nowInt = Long.parseLong(now);
-                String bef = stack.pollLast();
-                
-                if(bef.equals(target)) {
-                    long befInt = Long.parseLong(stack.pollLast());
-                    
-                    if (bef.equals("+")) {
-                        stack.offerLast((nowInt + befInt)+"");
-                    } else if (bef.equals("-")) {
-                        stack.offerLast((befInt - nowInt)+"");
-                    } else if (bef.equals("*")) {
-                        stack.offerLast((nowInt * befInt)+"");
-                    }
+            if(stack.peekLast().equals(target+"")) {
+                stack.pollLast();
+                long tL = Long.parseLong(now);
+                if (target == '-') {
+                    tL = Long.parseLong(stack.pollLast()) - tL;
+                } else if (target == '+') {
+                    tL = Long.parseLong(stack.pollLast()) + tL;
                 } else {
-                    stack.offerLast(bef);
-                    stack.offerLast(now);
+                    tL = Long.parseLong(stack.pollLast()) * tL;
                 }
-            } catch(Exception e) {
-                stack.offerLast(now);
+                now = tL+"";
             }
+            stack.offerLast(now);
         }
         
         return stack;
+    }
+    
+    Long func(String targets) {
+        Deque<String> tmp = new ArrayDeque<>(queue);
+        
+        for(char target : targets.toCharArray()) 
+            tmp = calc(tmp, target);
+        
+        return Math.abs(Long.parseLong(tmp.pollLast()));
     }
 }
