@@ -3,35 +3,41 @@ class Solution {
     public int solution(int n, int[] lost, int[] reserve) {
         int answer = 0;
         
-        int[] hasClothes = new int[n+1];
-        Arrays.fill(hasClothes, 1);
-        hasClothes[0] = 0;
+        int[] clothes = new int[n+1];
+        Arrays.fill(clothes, 1);
         
-        for (int l : lost) hasClothes[l]--;
-        for (int r : reserve) hasClothes[r]++;
+        clothes[0] = 0;
+        for (int l : lost) {
+            clothes[l] -= 1;
+        }
         
-        for(int i = 1 ; i <= n ; i++) {
-            if (hasClothes[i] != 2) continue;
-            
-            if (i == 1 && hasClothes[i+1] == 0) {
-                hasClothes[i + 1]++;
-                hasClothes[i]--;
-            } else if (i == n && hasClothes[i-1] == 0) {
-                hasClothes[i - 1]++;
-                hasClothes[i]--;
-            } else if (i > 1 && i < n) {
-                if (hasClothes[i-1] == 0) {
-                    hasClothes[i-1]++;
-                    hasClothes[i]--;
-                } else if (hasClothes[i+1] == 0) {
-                    hasClothes[i + 1]++;
-                    hasClothes[i]--;
+        for (int r : reserve) {
+            clothes[r] += 1;
+        }
+        
+        for (int i = 1 ; i <= n ; i++) {
+            if (clothes[i] == 1) continue;
+            if (clothes[i] == 0) {
+                if (i == 1 && clothes[i+1] == 2) {
+                    clothes[i]++;
+                    clothes[i+1]--;
+                } else if (i == n && clothes[i-1] == 2) {
+                    clothes[i]++;
+                    clothes[i-1]--;
+                } else if (i > 1 && i < n) {
+                    if (clothes[i-1] == 2) {
+                        clothes[i]++;
+                        clothes[i-1]--;
+                    } else if (clothes[i+1] == 2) {
+                        clothes[i]++;
+                        clothes[i+1]--;
+                    } 
                 }
             }
         }
         
-        for(int i = 1 ; i <= n ; i++) {
-            if(hasClothes[i] >= 1)
+        for (int i = 1 ; i <= n ; i++) {
+            if (clothes[i] > 0)
                 answer++;
         }
         
