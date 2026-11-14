@@ -5,17 +5,17 @@ class Solution {
         
         Arrays.sort(people);
         
-        int left = 0; int right = people.length-1;
+        int min = 0; int max = people.length-1;
         
-        while(left<=right) {
-            int sum = people[left] + people[right];
+        while(min<=max) {
+            int sum = people[min] + people[max];
             
             if(sum <= limit) {
-                left++;
-                right--;
+                min++;
+                max--;
                 answer++;
             } else {
-                right--;
+                max--;
                 answer++;
             }
         }
