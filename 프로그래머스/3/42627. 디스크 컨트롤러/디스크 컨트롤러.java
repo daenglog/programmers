@@ -1,53 +1,58 @@
 import java.util.*;
 class Solution {
     public int solution(int[][] jobs) {
-        int L = jobs.length;
         int answer = 0;
+        
+        PriorityQueue<Disk> pq = new PriorityQueue<>((o1, o2) -> {
+            int res1 = Integer.compare(o1.jobTm(), o2.jobTm());
+            
+            if (res1 == 0) {
+                int res2 = Integer.compare(o1.start(), o2.start());
+                
+                if (res2 == 0) {
+                    return Integer.compare(o1.jobNo(), o2.jobNo());
+                }
+                
+                return res2;
+            }
+            return res1;
+        });
         
         ArrayList<Disk> list = new ArrayList<>();
         
-        for(int i = 0 ; i < L ; i++) {
+        for(int i = 0 ; i < jobs.length ; i++) {
             list.add(new Disk(i, jobs[i][0], jobs[i][1]));
         }
         
-        list.sort((d1, d2) -> Integer.compare(d1.start(), d2.start()));
-        
-        PriorityQueue<Disk> pQ = new PriorityQueue<>((t1, t2) -> {
-            if(t1.time() == t2.time()) {
-                if(t1.start() == t2.start()) 
-                    return t1.num() - t2.num();
-                
-                return t1.start() - t2.start();
-            }
-            return t1.time() - t2.time();
+        Collections.sort(list, (a,b) -> {
+           return Integer.compare(a.start(), b.start()); 
         });
         
         int t = 0; int idx = 0;
-        
-        while (idx < L || !pQ.isEmpty()) {
+        while (idx < jobs.length || !pq.isEmpty()) {
             
-            while (idx < L && list.get(idx).start() <= t) {
-                pQ.add(list.get(idx));
+            while (idx < jobs.length && list.get(idx).start() <= t) {
+                pq.offer(list.get(idx));
                 idx++;
             }
             
-            if (pQ.isEmpty()) {
+            if (pq.isEmpty()) {
                 t = list.get(idx).start();
                 continue;
             }
             
-            Disk now = pQ.poll();
-            t += now.time();
+            Disk now = pq.poll();
+            t += now.jobTm();
             
             answer += t - now.start();
         }
         
-        return answer / L;
+        return answer/jobs.length;
     }
 }
 
 record Disk(
-    int num,
+    int jobNo,
     int start,
-    int time
+    int jobTm
 ){}
