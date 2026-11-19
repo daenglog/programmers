@@ -1,50 +1,53 @@
 import java.util.*;
-
 class Solution {
-    List<List<Integer>> graph;
+    HashMap<Integer, ArrayList<Integer>> map = new HashMap<>();
     public int solution(int n, int[][] wires) {
-        graph = new ArrayList<>();
-        
-        for(int i = 0 ; i <= n ; i++) {
-            graph.add(new ArrayList<>());
-        }
-        
-        for(int[] wire : wires) {
-            graph.get(wire[0]).add(wire[1]);
-            graph.get(wire[1]).add(wire[0]);
-        }
-        
         int answer = n;
-        for(int[] wire : wires) {
-            int count = bfs(n, wire[0], wire[0], wire[1]);
-            int diff = Math.abs(count - (n - count));
-            
-            answer = Math.min(answer, diff);
+        
+        for(int i = 1 ; i <= n ; i++) {
+            map.put(i, new ArrayList<>());
         }
+        
+        for(int[] wire : wires) {
+            ArrayList<Integer> tmp = map.get(wire[0]);
+            ArrayList<Integer> tmp1 = map.get(wire[1]);
+            tmp.add(wire[1]); tmp1.add(wire[0]);
+            map.put(wire[0], tmp); map.put(wire[1], tmp1);
+        }
+        
+        for(int[] wire : wires) {
+            int res = bfs(wire[0], n, wire);
+            int res1 = bfs(wire[1], n, wire);
+            
+            answer = Math.min(answer, Math.abs(res - res1));
+        }
+        
         
         return answer;
     }
     
-    int bfs(int n, int start, int x, int y) {
-        int cnt = 0;
-        boolean[] visited = new boolean[n + 1];
+    int bfs(int start, int n, int[] wire) {
+        int res = 1;
+        
         Deque<Integer> queue = new ArrayDeque<>();
+        boolean[] visited = new boolean[n+1];
         
+        queue.offerLast(start);
         visited[start] = true;
-        queue.addLast(start);
         
-        while(!queue.isEmpty()) {
+        while (!queue.isEmpty()) {
             int now = queue.pollFirst();
-            cnt++;
             
-            for(int i : graph.get(now)) {
-                if((now == x && i == y) || (now == y && i == x)) continue;
-                if(!visited[i]) {
-                    visited[i] = true;
-                    queue.addLast(i);
-                }
+            for(int next : map.get(now)) {
+                if(visited[next]) continue;
+                if((now == wire[0] && next == wire[1])||(now == wire[1] && next == wire[0])) continue;
+                
+                queue.offerLast(next);
+                visited[next] = true;
+                res++;
             }
         }
-        return cnt;
+        
+        return res;
     }
 }
