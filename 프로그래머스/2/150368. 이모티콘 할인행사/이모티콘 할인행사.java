@@ -1,65 +1,69 @@
 import java.util.*;
+
 class Solution {
-    int[][] costs;
-    int[] answer = {0, 0};
+    int[] answer = new int[2];
     public int[] solution(int[][] users, int[] emoticons) {
+        price = new int[emoticons.length][5];
+        makePrice(emoticons);
         
-        costs = new int[emoticons.length][4];
-        
-        for(int i = 0 ; i < emoticons.length ; i++) {
-            for(int j = 0 ; j < 4 ; j++) {
-                int discount = (j + 1) * 10;
-                costs[i][j] = emoticons[i] * (100 - discount) / 100;
-            }
-        }
-        dfs(0, users);
+        visited = new boolean[emoticons.length][5];
+        dfs(0, "", price.length, users);
         
         return answer;
     }
     
-    Deque<int[]> stack = new ArrayDeque<>();
-    void dfs(int idx, int[][] users) {
-        if(idx == costs.length) {
-            check(users);
+    void check(String str, int[][] users) {
+        char[] idxs = str.toCharArray();
+        
+        int plusService = 0; int total = 0;
+        for (int i = 0 ; i < users.length ; i++) {
+            int percent = users[i][0] % 10 == 0 ? users[i][0]/10 : users[i][0]/10+1;
+            
+            int tmp = 0 ; 
+            for (int m = 0 ; m < idxs.length ; m++) {
+                int n = idxs[m] - '0';
+                
+                if (n >= percent) {
+                    tmp+=price[m][n];
+                }
+            }
+            
+            if (tmp >= users[i][1]) {
+                plusService++;
+            } else {
+                total += tmp;
+            }
+        }
+        
+        if (answer[0] < plusService) {
+            answer[0] = plusService;
+            answer[1] = total;
+        } else if (answer[0] == plusService) {
+            answer[1] = Math.max(answer[1], total);
+        }
+    }   
+    
+    boolean[][] visited;
+    void dfs(int idx, String str, int L, int[][] users) {
+        if(idx == L) {
+            check(str, users);
             return;
         }
         
-        for(int j = 0 ; j < costs[0].length ; j++) {
-            stack.offerLast(new int[]{idx, j});
-            dfs(idx+1, users);
-            stack.pollLast();
+        for(int i = 1 ; i < 5 ; i++) {
+            if(visited[idx][i]) continue;
+            visited[idx][i] = true;
+            dfs(idx+1, str+i, L, users);
+            visited[idx][i] = false;
         }
     }
     
-    void check(int[][] users) {
-        ArrayList<int[]> list = new ArrayList<>(stack);
-        
-        int emoticonPlus = 0;
-        int emoticonCost = 0;
-        for(int[] user : users) {
-            int possible = user[0];
-            int maxCost = user[1];
-            
-            int tmp = 0;
-            for(int[] l : list) {
-                int cost = costs[l[0]][l[1]];
-                int percent = l[1] + 1;
-                if (possible <= percent * 10) {
-                    tmp += cost;
-                }
+    int[][] price;
+    void makePrice(int[] emoticons) {
+        for (int idx = 0; idx < emoticons.length; idx++) {
+            for (int i = 1; i <= 4; i++) {
+                price[idx][i] = emoticons[idx] * (100 - i * 10) / 100;
             }
-            if (tmp >= maxCost) {
-                emoticonPlus++;
-            } else {
-                emoticonCost += tmp;
-            }
-        }
-        
-        if (answer[0] < emoticonPlus) {
-            answer[0] = emoticonPlus;
-            answer[1] = emoticonCost;
-        } else if (answer[0] == emoticonPlus) {
-            answer[1] = Math.max(answer[1], emoticonCost);
         }
     }
 }
