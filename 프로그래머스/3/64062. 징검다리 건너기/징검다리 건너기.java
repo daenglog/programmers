@@ -1,17 +1,16 @@
 class Solution {
     public int solution(int[] stones, int k) {
-        int left = 1; int right = 1;
+        int answer = 0;
         
+        int left = 1; int right = 1;
         for(int stone : stones) {
             right = Math.max(right, stone);
         }
         
-        int answer = 1;
-        
         while (left <= right) {
-            int mid = (left + right)/2;
+            int mid = (left+right)/2;
             
-            if (check(stones, mid, k)) {
+            if (check(mid, stones, k)) {
                 answer = Math.max(answer, mid);
                 left = mid + 1;
             } else {
@@ -22,18 +21,19 @@ class Solution {
         return answer;
     }
     
-    boolean check(int[] stones, int mid, int k) {
+    boolean check(int mid, int[] stones, int k) {
         int count = 0;
         
-        for (int i = 0 ; i < stones.length ; i++) {
-            if (mid <= stones[i]) {
+        for(int stone : stones) {
+            if (stone >= mid) {
                 count = 0;
             } else {
                 count++;
             }
             
-            if (count >= k)
+            if (count >= k) {
                 return false;
+            }
         }
         
         return true;
