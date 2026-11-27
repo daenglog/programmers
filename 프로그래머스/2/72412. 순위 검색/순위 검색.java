@@ -1,5 +1,4 @@
 import java.util.*;
-
 class Solution {
     
     HashMap<String, ArrayList<Integer>> map = new HashMap<>();
@@ -7,59 +6,68 @@ class Solution {
     public int[] solution(String[] info, String[] query) {
         int[] answer = new int[query.length];
         
-        for(String i : info) {
+        List<Info> list = new ArrayList<>();
+        
+        for (String i : info) {
             String[] tmp = i.split(" ");
-            dfs(0, tmp, "");
+            list.add(new Info(new String[]{tmp[0], tmp[1], tmp[2], tmp[3]}, Integer.parseInt(tmp[4])));
         }
         
-        for(String key : map.keySet()) {
-            ArrayList<Integer> list = map.get(key);
-            Collections.sort(list);
-            map.put(key, list);
+        for(Info l : list) {
+            makeScore(0, l.tmp(), "", l.score());
         }
         
-        for(int i = 0 ; i < query.length ; i++) {
-            String q = query[i];
+        for (String key : map.keySet()) {
+            ArrayList<Integer> tmp = map.get(key);
+            Collections.sort(tmp);
+            map.put(key, tmp);
+        }
+        
+        for (int idx = 0; idx < query.length ; idx++) {
+            String q = query[idx];
             q = q.replaceAll(" and ", " ");
-            String[] tmp = q.split(" ");
-            answer[i] = check(tmp);
+            String[] strQ = q.split(" ");
+            String key = strQ[0] + strQ[1] + strQ[2] + strQ[3];
+            int base = Integer.parseInt(strQ[4]);
+            
+            if (map.containsKey(key)) {
+                ArrayList<Integer> scores = map.get(strQ[0] + strQ[1] + strQ[2] + strQ[3]);
+                
+                int left = 0; int right = scores.size();
+                int sizeI = scores.size();
+                while (left <= right) {
+                    int mid = (left+right)/2;
+                    
+                    if (mid >= scores.size()) break;
+                    
+                    if (scores.get(mid) >= base) {
+                        sizeI = Math.min(sizeI, mid);
+                        right = mid - 1;
+                    } else {
+                        left = mid + 1;
+                    }
+                }
+                answer[idx] = scores.size() - sizeI;
+            }
         }
+        
         
         return answer;
     }
     
-    int check(String[] tmp) {
-        String key = " " + tmp[0] + " " + tmp[1] + " " + tmp[2] + " " + tmp[3];
-        int limit = Integer.parseInt(tmp[4]);
-        
-        ArrayList<Integer> search = map.get(key);
-        
-        if (search == null) return 0;
-        
-        int left = 0; int right = search.size() - 1;
-        while(left <= right) {
-            int mid = (left + right) / 2;
-            
-            if (search.get(mid) >= limit) {
-                right = mid - 1;
-            } else {
-                left = mid + 1;
-            }
-        }
-        
-        return search.size() - left;
-    }
-    
-    void dfs(int idx, String[] tmp, String str) {
+    void makeScore(int idx, String[] info, String str, int score) {
         if(idx == 4) {
-            ArrayList<Integer> list = map.getOrDefault(str, new ArrayList<>());
-            list.add(Integer.parseInt(tmp[4]));
-            map.put(str, list);
+            ArrayList<Integer> al = map.getOrDefault(str, new ArrayList<>());
+            al.add(score);
+            map.put(str, al);
             return;
         }
-        
-        dfs(idx+1, tmp, str+" "+tmp[idx]);
-        dfs(idx+1, tmp, str+" -");
+        makeScore(idx+1, info, str+info[idx], score);
+        makeScore(idx+1, info, str+"-", score);
     }
 }
-        
+
+record Info(
+    String[] tmp,
+    int score
+){}
