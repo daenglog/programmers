@@ -31,23 +31,19 @@ class Solution {
             int base = Integer.parseInt(strQ[4]);
             
             if (map.containsKey(key)) {
-                ArrayList<Integer> scores = map.get(strQ[0] + strQ[1] + strQ[2] + strQ[3]);
+                ArrayList<Integer> scores = map.get(key);
                 
-                int left = 0; int right = scores.size();
-                int sizeI = scores.size();
+                int left = 0; int right = scores.size() - 1;
                 while (left <= right) {
                     int mid = (left+right)/2;
                     
-                    if (mid >= scores.size()) break;
-                    
                     if (scores.get(mid) >= base) {
-                        sizeI = Math.min(sizeI, mid);
                         right = mid - 1;
                     } else {
                         left = mid + 1;
                     }
                 }
-                answer[idx] = scores.size() - sizeI;
+                answer[idx] = scores.size() - left;
             }
         }
         
